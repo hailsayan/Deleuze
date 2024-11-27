@@ -13,7 +13,8 @@ func NewServer() *server {
 }
 
 func (s *server) Server(port int) {
-	http.HandleFunc("/h", s.HandlerFunction)
+	http.HandleFunc("/h", s.hello)
+	http.HandleFunc("/bmi", s.bmi)
 
 	addr := fmt.Sprintf(":%d", port)
 	fmt.Printf("Server is running on port %d", port)
