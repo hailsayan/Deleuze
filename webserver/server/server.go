@@ -1,23 +1,28 @@
 package server
 
 import (
-	"fmt"
 	"log"
 	"net/http"
+	"sync"
 )
 
-type server struct{}
-
-func NewServer() *server {
-	return &server{}
+type server struct {
+	counter int
+	mutex   *sync.Mutex
 }
 
-func (s *server) Server(port int) {
-	http.HandleFunc("/h", s.hello)
-	http.HandleFunc("/bmi", s.bmi)
+func New() *server {
+	return &server{
+		mutex:   &sync.Mutex{},
+		counter: 0,
+	}
+}
 
-	addr := fmt.Sprintf(":%d", port)
-	fmt.Printf("Server is running on port %d", port)
+func (s *server) Serve() {
+	http.Handle("/", http.FileServer(http.Dir("./static")))
 
-	log.Fatal(http.ListenAndServe(addr, nil))
+	http.HandleFunc("/counter", s.incrementCounter)
+	http.HandleFunc("/bmi", s.calculateBMI)
+
+	log.Fatal(http.ListenAndServe(":8081", nil))
 }

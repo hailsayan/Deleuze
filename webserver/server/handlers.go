@@ -5,13 +5,15 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 )
 
-func (handler *server) hello(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "working!")
-}
+func (handler *server) calculateBMI(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path != "/bmi" {
+		http.Error(w, "404 not found.", http.StatusNotFound)
+		return
+	}
 
-func (handler *server) bmi(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "POST":
 		defer r.Body.Close()
@@ -47,4 +49,11 @@ func (handler *server) bmi(w http.ResponseWriter, r *http.Request) {
 	default:
 		fmt.Fprintf(w, "Sorry, only POST method is supported.")
 	}
+}
+
+func (handler *server) incrementCounter(w http.ResponseWriter, r *http.Request) {
+	handler.mutex.Lock()
+	handler.counter++
+	fmt.Fprintf(w, strconv.Itoa(handler.counter))
+	handler.mutex.Unlock()
 }
